@@ -78,7 +78,7 @@ export default Lazy;
 要想渲染可视区域中对应的图片，逻辑如下：
 * 获取`el`(绑定自定义指令的元素)的父容器元素
 * 将所有`el`收集起来
-* 判断收集的`el`是否在可视区域内，以及是否被加载过
+* 判断收集的`el`是否在加载区域内，以及是否被加载过
 * 加载"加载区域"内没有被加载过的图片
 
 代码如下：
@@ -141,7 +141,7 @@ export default Lazy;
 ```
 在`Lazy`类中，我们会通过递归调用`el.parentNode`，来不停的查找其父元素，直到找到设置了`overflow`属性的元素。该元素就是我们要找的容器元素，要加载的图片会在容器元素内滚动。
 
-在`lazyHandler`中我们检查所有收集的`listener`是否在可视区域内以及是否加载过，对于可视区域内没有加载过的元素调用`load`方法。
+在`lazyHandler`中我们检查所有收集的`listener`是否在加载区域内以及是否加载过，对于加载区域内没有加载过的元素调用`load`方法。
 
 `listener`是`ReactiveListener`的实例，用来描述每一个被加载图片的信息，其内部实现如下：
 ```js
@@ -157,7 +157,7 @@ class ReactiveListener {
     this.state = 'init'; // init, pending, success, failure
   }
   
-  // 检查元素是否在可视区域内
+  // 检查元素是否在加载区域内
   checkInView () {
     const { top, height } = this.parent.getBoundingClientRect();
     const { top: elTop } = this.el.getBoundingClientRect();
@@ -186,11 +186,11 @@ class ReactiveListener {
 
 export default ReactiveListener;
 ```
-`checkInView`方法内部判断了图片是否在可视区域内，其计算逻辑如下图：
+`checkInView`方法内部判断了图片是否在加载区域内，其计算逻辑如下图：
 ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/2020-10-14-15-08.png)
-当图片距离视口的`top` - 父容器 * 预加载比例 < 父容器距离视口的`top`时，说明图片在可视区域内部，需要加载。加载区域会低于父容器底部的一定位置，这样会在用户的可视区域外再加载一些图片，提升用户体验。
+当 图片距离视口的`top` - 父容器 * 预加载比例 < 父容器距离视口的`top` 时，说明图片在加载区域内部，需要加载。加载区域会低于父容器底部的一定位置，这样会在用户的可视区域外再提供一些预加载区域，用于多加载一些图片，从而提升用户体验。
 
-在图片加载时，我们通过创建一个`Image`实例，设置`src`属性后，通过监听`load`以及`error`事件来模拟其加载过程，实现加载中显示`loading`状态图片以及加载失败显示`error`状态图片。
+在图片加载时，我们通过创建一个`Image`实例。为`image`设置`src`属性后，通过监听`load`以及`error`事件来模拟其加载过程，便于真实图片在加载中显示`loading`状态图片以及加载失败显示`error`状态图片。
 
 ### 容器滚动时加载
 当用户滚动父容器时，可视区域发生了变化，此时我们需要对所有收集的`listener`中处于未加载状态的图片进行加载：
