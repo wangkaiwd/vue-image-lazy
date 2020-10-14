@@ -31,3 +31,44 @@ Vue.use(LazyLoad, {
 </template>
 ```
 可以看到在`img`标签上，我们用到了`v-lazy`指令。这是`Vue`中的自定义指令，方便我们进行`dom`操作，以及封装一些可复用的逻辑。
+
+### 组件安装
+在之前我们提到过要使用`Vue.use`来使用组件，所以组件要暴露`install`方法。
+```js
+// index.js
+import Lazy from '@/components/lazy-load/lazy';
+
+const install = (Vue, options) => {
+  const lazy = new Lazy(Vue,options);
+  Vue.directive('lazy', {
+    bind: lazy.add.bind(lazy),
+    unbind: lazy.destroy.bind(lazy)
+  });
+};
+
+export default install;
+```
+上边代码中`Lazy`是一个`class`，用来书写组件的逻辑，代码如下：
+```js
+import ReactiveListener from '@/components/lazy-load/listener';
+
+class Lazy {
+  constructor (Vue, options) {
+    this.Vue = Vue;
+    this.options = options;
+  }
+  // 为每个img元素绑定bind钩子函数
+  add (el, binding) {
+    
+  }
+  // 销毁时绑定unbind函数
+  destroy () {
+    
+  }
+}
+
+export default Lazy;
+```
+
+### 首次加载图片
+
