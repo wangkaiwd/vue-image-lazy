@@ -1,28 +1,31 @@
 ## `Vue`实战：图片懒加载组件
+> **注意** ： 文中 "加载区域" = 可视区域(父容器高度) * preload(用户使用时配置项中传入) = 可视区域(父容器高度) + 预加载区域
+> ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/2020-10-14-16-56.png)
 
-当访问页面时，如果一次性请求当前页面中的所有图片，会占用很大的资源。而图片懒加载所实现的功能，就是只加载用户可视区域的图片，而可视区域外的图片并不会进行资源请求，当页面滚动时会对当前可视区域的内容继续进行加载。
+当访问页面时，如果一次性请求当前页面中的所有图片，会占用很大的资源。而图片懒加载所实现的功能，就是只加载用户加载区域的图片，而加载区域外的图片并不会进行资源请求，当页面滚动时会对当前加载区域的内容继续进行加载。
 
 其`HTML`加载过程如下：
 ![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/20201014105103.png)
+
 
 已加载的图片为用户已经浏览过的内容，处于`loading`的图片是用户当前正在浏览的内容，之后会替换为图片的真实路径，而还未加载的图片处于可视区域下方，没有`src`属性，只有在用户浏览时才会进行加载。
 
 在了解了图片懒加载的大致工作流程后，我们开始使用`Vue`自己实现一个图片懒加载组件。
 
 ### 组件使用方式分析
-这里我们设计一下用户会如何使用我们是实现的组件：
+这里我们设计一下用户将如何使用我们实现的组件：
 ```javascript
 import Vue from 'vue';
 import LazyLoad from '@/components/lazy-load';
 
 Vue.use(LazyLoad, {
-  preload: 1.3, // 可视区域相对于容器高度的比例，即可视区域 = 容器高度*preload
+  preload: 1.3, // 加载区域相对于可视区域的比例，即加载区域 = 容器高度(可视区域) * preload
   error: require('@/assets/imgs/error.png'), // 图片加载失败时显示
   loading: require('@/assets/imgs/loading.png') // 图片加载过程中显示
 });
 ```
 
-上述代码中，我们使用`Vue.use`来使用`LazyLoad`组件，说名该组件是一个`Vue`插件。在页面中的使用方式如下： 
+上述代码中，我们使用`Vue.use`来使用`LazyLoad`组件，说明该组件是一个`Vue`插件。在页面中的使用方式如下： 
 ```vue
 <template>
   <div class="container">
@@ -50,8 +53,6 @@ export default install;
 ```
 上边代码中`Lazy`是一个`class`，用来书写组件的逻辑，代码如下：
 ```js
-import ReactiveListener from '@/components/lazy-load/listener';
-
 class Lazy {
   constructor (Vue, options) {
     this.Vue = Vue;
@@ -75,10 +76,10 @@ export default Lazy;
 
 ### 首次加载图片
 要想渲染可视区域中对应的图片，逻辑如下：
-* 获取`el`(绑定自定义指令的元素)的父容器组件
+* 获取`el`(绑定自定义指令的元素)的父容器元素
 * 将所有`el`收集起来
 * 判断收集的`el`是否在可视区域内，以及是否被加载过
-* 加载可视区域内没有被加载过的图片
+* 加载"加载区域"内没有被加载过的图片
 
 代码如下：
 ```js
@@ -116,7 +117,7 @@ class Lazy {
 
   lazyHandler () {
     this.listenerQueue.forEach(listener => {
-      // 可视区域内并且没有被加载过的文件需要加载
+      // 加载区域内并且没有被加载过的文件需要加载
       if (listener.checkInView() && (listener.state === 'init')) {
         listener.load();
       }
