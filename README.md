@@ -191,7 +191,79 @@ export default ReactiveListener;
 
 在图片加载时，我们通过创建一个`Image`实例，设置`src`属性后，通过监听`load`以及`error`事件来模拟其加载过程，实现加载中显示`loading`状态图片以及加载失败显示`error`状态图片。
 
-到这里，我们就可以通过`chrome`浏览器控制台看到笔者在文章开始截图的效果了。
+### 容器滚动时加载
+当用户滚动父容器时，可视区域发生了变化，此时我们需要对所有收集的`listener`中处于未加载状态的图片进行加载：
+```javascript
+import ReactiveListener from '@/components/lazy-load/listener';
+
+class Lazy {
+  constructor (Vue, options) {
+    // omit some code...
+    // 将原型上的方法绑定到自身的属性上
+    this.lazyHandler = this.lazyHandler.bind(this);
+  }
+
+  add (el, binding) {
+    // 确保能获取到dom元素
+    this.Vue.nextTick(() => {
+      this.parent = this.getScrollParent(el);
+      if (!this.hasBindScroll) {
+        this.parent.addEventListener('scroll', this.lazyHandler);
+        this.hasBindScroll = true;
+      }
+      // omit some code ...  
+    });
+  }
+  lazyHandler () {
+    this.listenerQueue.forEach(listener => {
+      if (listener.checkInView() && (listener.state === 'init')) {
+        listener.load();
+      }
+    });
+  }
+}
+```
+`hasBindScroll`用来防止对`parent`多次绑定`scroll`，在首次绑定之后就会设置为`true`。
+
+在父容器滚动的时候执行`lazyHandler`方法，用于加载可视区域内的图片。需要注意的是：要提前绑定`lazyHandler`的`this`指向，否则`this`将会指向`parent`。
+
+每次滚动的时候，都会执行`lazyHandler`中的逻辑，当图片内容较多时，性能会比较差，这里我们可以使用节流函数来进行优化。即用户滚动期间，我们可以设置间隔时间，在特定间隔时间内，只会执行一次`lazyHandler`函数，极大的减少了函数执行次数:
+```javascript
+import ReactiveListener from '@/components/lazy-load/listener';
+
+class Lazy {
+  constructor (Vue, options) {
+    // omit some code ...
+    // 指定this指向并且每200ms执行一次
+    this.lazyHandler = this.throttle(this.lazyHandler.bind(this), 200);
+  }
+  // omit some code ...
+
+  lazyHandler () {
+    this.listenerQueue.forEach(listener => {
+      if (listener.checkInView() && (listener.state === 'init')) {
+        listener.load();
+      }
+    });
+  }
+
+  throttle (fn, wait = 0) {
+    let timerId = null;
+    return function (...args) {
+      if (timerId) {return;}
+      timerId = setTimeout(() => {
+        fn(...args);
+        timerId = null;
+      }, wait);
+    };
+  }
+}
+
+export default Lazy;
+
+```
+
+到这里，我们就可以通过`chrome`浏览器控制台看到笔者在文章开始时截图的效果了。
 
 ### 结语
 在文末对实现组件所需要的知识点以及其文档链接，方便读者进行查阅和回顾
