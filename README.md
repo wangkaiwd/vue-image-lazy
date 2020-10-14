@@ -12,6 +12,9 @@
 
 在了解了图片懒加载的大致工作流程后，我们开始使用`Vue`自己实现一个图片懒加载组件。
 
+> * [源码地址](https://github.com/wangkaiwd/vue-image-lazy)
+> * [demo展示](https://wangkaiwd.github.io/vue-image-lazy/)
+
 ### 组件使用方式分析
 这里我们设计一下用户将如何使用我们实现的组件：
 ```javascript
