@@ -193,10 +193,13 @@ export default ReactiveListener;
 
 到这里，我们就可以通过`chrome`浏览器控制台看到笔者在文章开始截图的效果了。
 
-### 知识点总结
+### 结语
 在文末对实现组件所需要的知识点以及其文档链接，方便读者进行查阅和回顾
-* `Vue.use`
-* `Vue.nextTick`
-* `Vue`自定义指令
-* `getBoundingClientRect`
-* `getComputedStyle`
+* [`Vue.use`](https://cn.vuejs.org/v2/api/index.html#Vue-use): 安装一个`Vue.js`插件。如果插件是一个对象，它必须暴露一个`install`方法。如果它是一个函数，它将会作为安装方法来对待。
+* [`Vue.nextTick`](https://cn.vuejs.org/v2/api/index.html#Vue-nextTick): 在下一次`DOM`更新循环之后执行延迟回调。在你已经更改一些数据之后，立即使用它来获取`DOM`更新后的数据。
+* [`Vue`自定义指令](https://cn.vuejs.org/v2/guide/custom-directive.html#ad): 复用在普通`DOM`上的一些底层访问。 
+* [`Element.getBoundingClientRect`](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect): 返回一个元素的大小以及相对于视口的位置
+* [`getComputedStyle`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/getComputedStyle): 返回包含一个元素所有`CSS`属性值的一个对象，该属性值为在应用激活样式表以及解析这些值可能包含的基础计算之后的值
+
+参考：
+* [`vue-lazyload`](https://github.com/hilongjw/vue-lazyload)
