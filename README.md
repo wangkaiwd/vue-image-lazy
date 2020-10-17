@@ -190,7 +190,7 @@ class ReactiveListener {
 export default ReactiveListener;
 ```
 `checkInView`方法内部判断了图片是否在加载区域内，其计算逻辑如下图：
-![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/2020-10-14-15-08.png)
+![](https://raw.githubusercontent.com/wangkaiwd/drawing-bed/master/2020-10-17-5-02.png)
 当 图片距离视口的`top` - 父容器 * 预加载比例 < 父容器距离视口的`top` 时，说明图片在加载区域内部，需要加载。加载区域会低于父容器底部的一定位置，这样会在用户的可视区域外再提供一些预加载区域，用于多加载一些图片，从而提升用户体验。
 
 在图片加载时，我们通过创建一个`Image`实例。为`image`设置`src`属性后，通过监听`load`以及`error`事件来模拟其加载过程，便于真实图片在加载中显示`loading`状态图片以及加载失败显示`error`状态图片。
